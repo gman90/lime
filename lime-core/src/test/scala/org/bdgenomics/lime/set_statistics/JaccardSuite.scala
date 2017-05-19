@@ -6,6 +6,7 @@ import org.bdgenomics.lime.LimeFunSuite
 
 class JaccardSuite extends LimeFunSuite {
   sparkTest("test jaccard distance between two regions") {
+
     val leftGenomicRDD = sc.loadFeatures(resourcesFile("/intersect_with_overlap_00.bed")).sortLexicographically()
     val leftGenomicRDDKeyed = leftGenomicRDD.rdd.map(f => (ReferenceRegion.unstranded(f), f))
     val rightGenomicRdd = sc.loadFeatures(resourcesFile("/intersect_with_overlap_01.bed")).sortLexicographically()

@@ -5,7 +5,9 @@ import org.bdgenomics.adam.rdd.ADAMContext._
 import org.bdgenomics.lime.LimeFunSuite
 
 class WindowSuite extends LimeFunSuite {
+
   sparkTest("testing window matches bedtools output") {
+
     val leftFile = sc.loadBed(resourcesFile("/intersect_with_overlap_00.bed")).sortLexicographically()
     val rightFile = sc.loadBed(resourcesFile("/window_with_overlap_01.bed"))
 

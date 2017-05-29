@@ -6,7 +6,7 @@ import org.bdgenomics.adam.rdd.{ ADAMSaveAnyArgs, GenomicRDD, feature }
 import org.bdgenomics.utils.cli._
 import org.kohsuke.args4j.Argument
 import org.bdgenomics.adam.models.ReferenceRegion
-import org.bdgenomics.lime.set_statistics.JaccardDistance
+import org.bdgenomics.lime.set_statistics.Relative
 
 object Reldist extends BDGCommandCompanion {
   val commandName = "reldist"
@@ -45,9 +45,10 @@ object Reldist extends BDGCommandCompanion {
       val rightGenomicRdd = sc.loadFeatures(args.rightInput).sortLexicographically()
       val rightGenomicRDDKeyed = rightGenomicRdd.rdd.map(f => (ReferenceRegion.unstranded(f), f))
 
-      val rel_dist = new JaccardDistance(leftGenomicRDDKeyed, rightGenomicRDDKeyed, leftGenomicRDD.optPartitionMap.get,
+      val rel_dist = new Relative(leftGenomicRDDKeyed, rightGenomicRDDKeyed, leftGenomicRDD.optPartitionMap.get,
         rightGenomicRdd.optPartitionMap.get).compute()
-      println(jaccard_dist)
+
+      println(rel_dist)
 
     }
   }

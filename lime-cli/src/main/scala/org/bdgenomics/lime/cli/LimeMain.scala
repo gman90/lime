@@ -14,6 +14,7 @@ private class LimeMain(args: Array[String]) extends Logging {
     Intersection,
     Jaccard,
     Merge,
+    Reldist,
     Sort,
     Closest,
     Window)

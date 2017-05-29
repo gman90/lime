@@ -6,7 +6,7 @@ import org.bdgenomics.lime.LimeFunSuite
 
 class SubtractSuite extends LimeFunSuite {
   sparkTest("test subtract between multiple overlapping regions") {
-    /*
+
     val leftFile = sc.loadBed(resourcesFile("/intersect_with_overlap_00.bed")).sortLexicographically()
     val rightFile = sc.loadBed(resourcesFile("/intersect_with_overlap_01.bed"))
 
@@ -37,7 +37,7 @@ class SubtractSuite extends LimeFunSuite {
       ReferenceRegion("chr1", 869332, 871872),
       ReferenceRegion("chr1", 875730, 878363))
 
-    assert(!regionsSubtracted.zip(bedtoolsOutput).exists(f => f._1 != f._2))*/
-    true
+    assert(!regionsSubtracted.zip(bedtoolsOutput).exists(f => f._1 != f._2))
+
   }
 }

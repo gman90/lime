@@ -48,8 +48,6 @@ object Reldist extends BDGCommandCompanion {
       val rel_dist = new Relative(leftGenomicRDDKeyed, rightGenomicRDDKeyed, leftGenomicRDD.optPartitionMap.get,
         rightGenomicRdd.optPartitionMap.get).compute()
 
-      println(rel_dist)
-
     }
   }
 

@@ -15,22 +15,38 @@ class Relative[T: ClassTag, U: ClassTag](leftRdd: RDD[(ReferenceRegion, Feature)
   def compute(): StatisticResult = {
 
     val nearest_RDD = new SingleNearest(leftRdd, rightRdd, leftPartitionMap).compute()
-    nearest_RDD.collect().foreach(println)
+    val resultRdd = nearest_RDD.map(f => {
+      (f._1, List(ReferenceRegion(f._2._2.getContigName, f._2._2.getStart, f._2._2.getEnd)))
+    }).reduceByKey((a, b) => (a ++ b)).map(f => {
+      val nearest = if (f._2.size < 2) {
+        new ReferenceRegion("", 0, 0) :: f._2
+      } else {
+        f._2
+      }
+      val numer = nearest.map(g => {
+        Math.abs((f._1.start + (f._1.end - f._1.start) / 2) - (g.start + (g.end - g.start) / 2))
+      }).min
 
-    ReldistStatistic(0, 0, 0, 0)
+      val denom = nearest.foldLeft(0.0)((a, b) => Math.abs(a - (b.start + (b.end - b.start) / 2)))
+      if ((f._1.start) == 135453) {
+        println(numer)
+        println(denom)
+
+      }
+      (f._1, numer / denom)
+
+    })
+
+    resultRdd.collect().foreach(println)
+
+    ReldistStatistic(resultRdd)
 
   }
-
 }
 
-private case class ReldistStatistic(intersectLength: Long,
-                                    unionLength: Long,
-                                    jaccardDist: Double,
-                                    nIntersections: Long) extends StatisticResult {
+private case class ReldistStatistic(resultRdd: RDD[(ReferenceRegion, Double)]) extends StatisticResult {
 
   override def toString(): String = {
-
-    "intersection\tunion-intersection\tjaccard\tn_intersections\n" +
-      s"$intersectLength\t$unionLength\t$jaccardDist\t$nIntersections"
+    resultRdd.toString()
   }
 }

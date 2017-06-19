@@ -10,7 +10,7 @@ import scala.reflect.ClassTag
 sealed abstract class NearestMidpoints[T: ClassTag, U: ClassTag] extends SetTheoryBetweenCollections[T, U, T, U] {
 
   var leftNearest: ReferenceRegion = ReferenceRegion("", 0, 0)
-  var rightNearest: ReferenceRegion = ReferenceRegion("", 0, 0)
+  var rightNearest: ReferenceRegion = ReferenceRegion("", Long.MaxValue, Long.MaxValue)
 
   /**
    * The condition requirement here is that the first region be closer to the
@@ -179,8 +179,8 @@ class SingleNearest[T: ClassTag, U: ClassTag](protected val leftRdd: RDD[(Refere
       val leftMidpoint = leftNearest.start + (leftNearest.end - leftNearest.start) / 2
       val rightMidpoint = rightNearest.start + (rightNearest.end - rightNearest.start) / 2
 
-      if (((cachedMidpoint >= toMidpoint) && (Math.abs(rightMidpoint - cachedMidpoint) < Math.abs(toMidpoint - cachedMidpoint))) ||
-        ((cachedMidpoint < toMidpoint) && (Math.abs(cachedMidpoint - leftMidpoint) < Math.abs(cachedMidpoint - toMidpoint)))) {
+      if (((cachedMidpoint >= toMidpoint) && (Math.abs(rightMidpoint - toMidpoint) <= Math.abs(toMidpoint - cachedMidpoint))) ||
+        ((cachedMidpoint < toMidpoint) && (Math.abs(leftMidpoint - toMidpoint) <= Math.abs(cachedMidpoint - toMidpoint)))) {
         true
       } else
         false
@@ -208,11 +208,16 @@ class SingleNearest[T: ClassTag, U: ClassTag](protected val leftRdd: RDD[(Refere
     if (candidateRegion.referenceName != until.referenceName) {
 
       false
-    } else if ((candidateMidpoint >= untilMidpoint) && (Math.abs(rightMidpoint - untilMidpoint) >= Math.abs(untilMidpoint - candidateMidpoint))) {
+    } else if (candidateRegion.start == until.start && candidateRegion.end == until.end) {
+
+      rightNearest = candidateRegion
+      leftNearest = candidateRegion
+      true
+    } else if ((candidateMidpoint >= untilMidpoint) && (Math.abs(rightMidpoint - untilMidpoint) > Math.abs(untilMidpoint - candidateMidpoint))) {
 
       rightNearest = candidateRegion
       true
-    } else if (((candidateMidpoint < untilMidpoint) && (Math.abs(untilMidpoint - leftMidpoint) >= Math.abs(untilMidpoint - candidateMidpoint)))) {
+    } else if (((candidateMidpoint < untilMidpoint) && (Math.abs(untilMidpoint - leftMidpoint) > Math.abs(untilMidpoint - candidateMidpoint)))) {
       leftNearest = candidateRegion
 
       true
@@ -238,8 +243,10 @@ class SingleNearest[T: ClassTag, U: ClassTag](protected val leftRdd: RDD[(Refere
     val (currentRegion, currentValue) = current
     cache.filter(f => {
       val (rightRegion, _) = f
+
       condition(currentRegion, rightRegion)
     }).map(f => {
+
       val (rightRegion, rightValue) = f
       (primitive(currentRegion, rightRegion), (currentValue, rightValue))
     }).toIterator

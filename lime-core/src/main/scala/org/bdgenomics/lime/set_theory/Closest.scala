@@ -24,6 +24,7 @@ sealed abstract class Closest[T: ClassTag, U: ClassTag] extends SetTheoryBetween
   override protected def condition(firstRegion: ReferenceRegion,
                                    secondRegion: ReferenceRegion,
                                    threshold: Long = 0L): Boolean = {
+
     firstRegion
       .unstrandedDistance(secondRegion)
       .contains(firstRegion
